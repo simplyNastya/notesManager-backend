@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt')
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const result = await User.find().select('-password').lean()
-    if (!result) {
+    if (!result?.length) {
         return res.status(400).json({message: 'No users found'})
     } 
     res.json(result)
@@ -16,7 +16,7 @@ const createNewUser = asyncHandler(async (req, res) => {
     const { username, password, roles } = req.body
     
     // Confirm data
-    if (!username || !password || !roles.length || !Array.isArray(roles)) {
+    if (!username || !password || !Array.isArray(roles) || !roles.length) {
         return res.status(400).json({message: 'All fields are required'})
     }
 
@@ -45,13 +45,13 @@ const updateUser = asyncHandler(async (req, res) => {
     const { id, username, roles, active, password } = req.body
     
     // Confirm data 
-    if (!id || !username || !Array.isArray(roles) || !roles.lenght || typeof active !== 'boolean') {
+    if (!id || !username || !Array.isArray(roles) || typeof active !== "boolean") {
         return res.status(400).json({message: 'All fields are requared'})
     }
 
-    const result = await User.findById(id).exec()
+    const user = await User.findById(id).exec()
 
-    if (!result) {
+    if (!user) {
         return res.status(400).json({message: 'User not found'})
     }
 
@@ -63,17 +63,17 @@ const updateUser = asyncHandler(async (req, res) => {
         return res.status(409).json({message: 'Duplicate username'})
     }
 
-    result.username = username
-    result.roles = roles
-    result.active = active
+    user.username = username
+    user.roles = roles
+    user.active = active
     
     if (password) {
-        result.password = await bcrypt.hash(password, 10)
+        user.password = await bcrypt.hash(password, 10)
     }
 
-    const updatedUser = await result.save()
+    const updatedUser = await user.save()
 
-    res.json({message: `${updateUser.username} updated`})
+    res.json({message: `${updatedUser.username} updated`})
 })
 
 const deleteUser = asyncHandler(async (req, res) => {
@@ -83,9 +83,9 @@ const deleteUser = asyncHandler(async (req, res) => {
         res.status(400).json({message: 'User ID Required'})
     }
 
-    const notes = await Note.findOne({ user: id }).lean().exec()
+    const note = await Note.findOne({ user: id }).lean().exec()
     
-    if (notes?.length) {
+    if (note) {
         return res.status(400).json({message: `User has assigned notes`})
     }
 
