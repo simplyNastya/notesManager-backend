@@ -1,5 +1,5 @@
-const { Schema, model, default: mongoose } = require('mongoose')
-const AutoInctement = require('mongoose-sequence')(mongoose)
+const { Schema, model, mongoose } = require('mongoose')
+const AutoIncrement = require('mongoose-sequence')(mongoose)
 
 const noteSchema = new Schema({
     user: {
@@ -19,14 +19,14 @@ const noteSchema = new Schema({
         type: Boolean,
         default: false
     },
-},
-{timestamps: true, versionKey: false }
+}, {timestamps: true}
 )
 
-noteSchema.plugin(AutoInctement, {
+noteSchema.plugin(AutoIncrement, {
     inc_field: 'ticket',
     id: 'ticketNums',
-    start_seq: 500 
+    start_seq: 500,
+    disable_hooks: true
 })
 
 const Note = model('note', noteSchema)

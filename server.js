@@ -10,9 +10,9 @@ const cookieParser = require('cookie-parser')
 const connectDB = require('./config/dbConn')
 const mongoose = require('mongoose')
 const { logEvents } = require('./middlewares/logger')
-const { PORT = 3500 } = process.env
+const { PORT = 3500, NODE_ENV } = process.env
 
-console.log(process.env.NODE_ENV)
+console.log(NODE_ENV)
 
 connectDB()
 
